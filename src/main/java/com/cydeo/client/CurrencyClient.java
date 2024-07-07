@@ -1,4 +1,8 @@
 package com.cydeo.client;
 
-public class CurrencyClient {
+import org.springframework.cloud.openfeign.FeignClient;
+
+@FeignClient(url = "http://cydeodev.com/api/v1", name = "CURRENCY-CLIENT")
+public interface CurrencyClient {
+
 }
