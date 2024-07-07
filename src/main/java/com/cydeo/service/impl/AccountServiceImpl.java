@@ -10,7 +10,9 @@ import com.cydeo.service.UserService;
 import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,9 +42,18 @@ public class AccountServiceImpl implements AccountService {
                     // Convert each Account to an AccountDTO and set the username.
                     AccountDTO accountDTO = mapperUtil.convert(account, new AccountDTO());
                     accountDTO.setUsername(username);
+                    //assign some static values to otherCurrencies
+//                    Map<String, BigDecimal> otherCurrencies = new LinkedHashMap<>();
+//                    otherCurrencies.put("EUR",BigDecimal.valueOf(1000));
+//                    otherCurrencies.put("CAD",BigDecimal.valueOf(2000));
+                    accountDTO.setOtherCurrencies(getAllCurrenciesByBalance(accountDTO.getBalance()));
                     return accountDTO;
                 })
                 .collect(Collectors.toList());
+    }
+
+    private Map<String, BigDecimal> getAllCurrenciesByBalance(BigDecimal balance) {
+        return null;
     }
 
     /**
