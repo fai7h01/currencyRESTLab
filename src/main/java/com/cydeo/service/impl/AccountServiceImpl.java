@@ -1,7 +1,10 @@
 package com.cydeo.service.impl;
 
+import com.cydeo.client.CurrencyClient;
 import com.cydeo.dto.AccountDTO;
 import com.cydeo.dto.UserDTO;
+import com.cydeo.dto.response.CurrencyData;
+import com.cydeo.dto.response.CurrencyResponse;
 import com.cydeo.entity.Account;
 import com.cydeo.entity.User;
 import com.cydeo.repository.AccountRepository;
@@ -11,6 +14,9 @@ import com.cydeo.util.MapperUtil;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,11 +27,13 @@ public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final UserService userService;
     private final MapperUtil mapperUtil;
+    private final CurrencyClient currencyClient;
 
-    public AccountServiceImpl(AccountRepository accountRepository, UserService userService, MapperUtil mapperUtil) {
+    public AccountServiceImpl(AccountRepository accountRepository, UserService userService, MapperUtil mapperUtil, CurrencyClient currencyClient) {
         this.accountRepository = accountRepository;
         this.userService = userService;
         this.mapperUtil = mapperUtil;
+        this.currencyClient = currencyClient;
     }
 
     /**
@@ -53,7 +61,17 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private Map<String, BigDecimal> getAllCurrenciesByBalance(BigDecimal balance) {
-        return null;
+        CurrencyResponse allCurrencies = currencyClient.getAllCurrencies();
+        List<CurrencyData> currencyData = allCurrencies.getData();
+        //get currency name and multiply exchange rate to balance and put it to the map
+        Map<String,BigDecimal> otherCurrencies = new LinkedHashMap<>();
+        currencyData.forEach(cd -> {
+            String currencyName = cd.getCurrencyCode();
+            BigDecimal convertedBalance = balance.multiply(cd.getUsdExchangeRate());
+            convertedBalance = convertedBalance.setScale(2, RoundingMode.FLOOR);
+            otherCurrencies.put(currencyName,convertedBalance);
+        });
+        return otherCurrencies;
     }
 
     /**
