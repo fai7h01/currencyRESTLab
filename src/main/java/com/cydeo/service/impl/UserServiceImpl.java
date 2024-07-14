@@ -2,6 +2,7 @@ package com.cydeo.service.impl;
 
 import com.cydeo.dto.UserDTO;
 import com.cydeo.entity.User;
+import com.cydeo.exception.UserAlreadyExistException;
 import com.cydeo.exception.UserNotFoundException;
 import com.cydeo.repository.UserRepository;
 import com.cydeo.service.UserService;
@@ -61,7 +62,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserDTO create(UserDTO userDTO) {
-
+        if (userRepository.findByUsername(userDTO.getUsername()).isPresent()){
+            throw new UserAlreadyExistException("User " +  userDTO.getUsername() + " already exists.");
+        }
         // Save the new user to the database and convert the result to a UserDTO.
         User newUser = userRepository.save(mapperUtil.convert(userDTO,new User()));
         return mapperUtil.convert(newUser,new UserDTO());
