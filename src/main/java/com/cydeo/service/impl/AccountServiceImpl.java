@@ -44,26 +44,21 @@ public class AccountServiceImpl implements AccountService {
      */
     @Override
     public List<AccountDTO> findAllByUsername(String username) {
-        // Fetch all accounts for the user by username and convert each to an AccountDTO.
         return accountRepository.findAllByUser_Username(username).stream()
                 .map(account -> {
-                    // Convert each Account to an AccountDTO and set the username.
                     AccountDTO accountDTO = mapperUtil.convert(account, new AccountDTO());
                     accountDTO.setUsername(username);
-                    //assign some static values to otherCurrencies
-//                    Map<String, BigDecimal> otherCurrencies = new LinkedHashMap<>();
-//                    otherCurrencies.put("EUR",BigDecimal.valueOf(1000));
-//                    otherCurrencies.put("CAD",BigDecimal.valueOf(2000));
                     accountDTO.setOtherCurrencies(getAllCurrenciesByBalance(accountDTO.getBalance()));
                     return accountDTO;
                 })
                 .collect(Collectors.toList());
     }
 
+
+
     private Map<String, BigDecimal> getAllCurrenciesByBalance(BigDecimal balance) {
         CurrencyResponse allCurrencies = currencyClient.getAllCurrencies();
         List<CurrencyData> currencyData = allCurrencies.getData();
-        //get currency name and multiply exchange rate to balance and put it to the map
         Map<String,BigDecimal> otherCurrencies = new LinkedHashMap<>();
         currencyData.forEach(cd -> {
             String currencyName = cd.getCurrencyCode();
@@ -73,6 +68,7 @@ public class AccountServiceImpl implements AccountService {
         });
         return otherCurrencies;
     }
+
 
     /**
      * Generates a random account number.
@@ -114,6 +110,28 @@ public class AccountServiceImpl implements AccountService {
 
         // Return the created AccountDTO.
         return accountToReturn;
+    }
+
+    @Override
+    public List<AccountDTO> findAllByUsernameAndCurrencyList(String username, List<String> currencies) {
+        return accountRepository.findAllByUser_Username(username).stream()
+                .map(account -> {
+                    AccountDTO accountDTO = mapperUtil.convert(account, new AccountDTO());
+                    accountDTO.setUsername(username);
+                    accountDTO.setOtherCurrencies(getListOfCurrenciesByBalance(accountDTO.getBalance(), currencies));
+                    return accountDTO;
+                })
+                .collect(Collectors.toList());
+    }
+
+    private Map<String, BigDecimal> getListOfCurrenciesByBalance(BigDecimal balance, List<String> currencies) {
+        CurrencyResponse currencyResponse = currencyClient.getListOfCurrencies(currencies);
+        List<CurrencyData> currencyDataList = currencyResponse.getData();
+        Map<String,BigDecimal> map = new HashMap<>();
+        currencyDataList.forEach(currencyData -> {
+            map.put(currencyData.getCurrencyCode(),balance.multiply(currencyData.getUsdExchangeRate()));
+        });
+        return map;
     }
 
 
