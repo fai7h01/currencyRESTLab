@@ -2,6 +2,7 @@ package com.cydeo.service.impl;
 
 import com.cydeo.dto.UserDTO;
 import com.cydeo.entity.User;
+import com.cydeo.exception.UserNotFoundException;
 import com.cydeo.repository.UserRepository;
 import com.cydeo.service.UserService;
 import com.cydeo.util.MapperUtil;
@@ -46,7 +47,7 @@ public class UserServiceImpl implements UserService {
     public UserDTO findByUsername(String username) {
         // Find and return the user by username, or throw an exception if not found.
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+                .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
 
         return mapperUtil.convert(user,new UserDTO());
     }
@@ -60,6 +61,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserDTO create(UserDTO userDTO) {
+
         // Save the new user to the database and convert the result to a UserDTO.
         User newUser = userRepository.save(mapperUtil.convert(userDTO,new User()));
         return mapperUtil.convert(newUser,new UserDTO());
