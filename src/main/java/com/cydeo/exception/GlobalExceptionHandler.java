@@ -22,15 +22,15 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UserAlreadyExistException.class)
-    public ResponseEntity<ExceptionWrapper> userNotFoundException(UserNotFoundException exception, HttpServletRequest request){
+    public ResponseEntity<ExceptionWrapper> userAlreadyExistException(UserAlreadyExistException exception, HttpServletRequest request){
 
         exception.printStackTrace();
 
         String message =exception.getMessage();
 
-        ExceptionWrapper exceptionWrapper = new ExceptionWrapper(HttpStatus.NOT_FOUND.value(), message, request.getRequestURI());
+        ExceptionWrapper exceptionWrapper = new ExceptionWrapper(HttpStatus.CONFLICT.value(), message, request.getRequestURI());
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exceptionWrapper);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(exceptionWrapper);
     }
 
 }
