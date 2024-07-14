@@ -3,6 +3,8 @@ package com.cydeo.controller;
 import com.cydeo.dto.ResponseWrapper;
 import com.cydeo.dto.UserDTO;
 import com.cydeo.service.UserService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +41,7 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ResponseWrapper> createUser(@RequestBody UserDTO userDTO){
+    public ResponseEntity<ResponseWrapper> createUser(@RequestBody @Valid UserDTO userDTO){
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ResponseWrapper.builder()

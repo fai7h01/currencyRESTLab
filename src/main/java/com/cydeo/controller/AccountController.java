@@ -4,8 +4,8 @@ package com.cydeo.controller;
 import com.cydeo.client.CurrencyClient;
 import com.cydeo.dto.AccountDTO;
 import com.cydeo.dto.ResponseWrapper;
-import com.cydeo.dto.response.CurrencyData;
 import com.cydeo.service.AccountService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,11 +17,9 @@ import java.util.List;
 public class AccountController {
 
     private final AccountService accountService;
-    private final CurrencyClient currencyClient;
 
-    public AccountController(AccountService accountService, CurrencyClient currencyClient) {
+    public AccountController(AccountService accountService) {
         this.accountService = accountService;
-        this.currencyClient = currencyClient;
     }
 
 
@@ -47,7 +45,7 @@ public class AccountController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ResponseWrapper> createAccount(@RequestBody AccountDTO accountDTO){
+    public ResponseEntity<ResponseWrapper> createAccount(@RequestBody @Valid AccountDTO accountDTO){
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ResponseWrapper.builder().success(true)
